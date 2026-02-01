@@ -1,0 +1,284 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
+    <title>Wowo.ID</title>
+    <link rel="manifest" href="manifest.json">
+    <meta name="apple-mobile-web-app-capable" content="yes">
+    
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.10.5/font/bootstrap-icons.css">
+    <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;600;800&display=swap" rel="stylesheet">
+    
+    <style>
+        :root {
+            --bg-dark: #0f172a;
+            --glass: rgba(255, 255, 255, 0.1);
+            --border: rgba(255, 255, 255, 0.1);
+            --text: #ffffff;
+        }
+
+        body {
+            font-family: 'Plus Jakarta Sans', sans-serif;
+            background-color: var(--bg-dark);
+            background-image: radial-gradient(circle at 50% 0%, #312e81 0%, #0f172a 70%);
+            color: var(--text);
+            min-height: 100vh;
+            overflow-x: hidden;
+        }
+
+        /* --- FITUR ANIME RGB GLOW (GAMBAR BARU) --- */
+        .anime-avatar {
+            width: 120px; height: 120px; /* Saya perbesar sedikit biar makin jelas */
+            border-radius: 50%;
+            /* Link gambar baru dipasang di sini */
+            background-image: url('https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcR4fyp11Su_vOQ9S-e-DZWxLw9Gqwz0J5QzM9dUvZ14tg&s=10'); 
+            background-size: cover;
+            background-position: center top; /* Fokus ke wajah */
+            border: 3px solid rgba(255,255,255,0.2);
+            /* Animasi RGB */
+            animation: rgbGlow 3s infinite linear;
+        }
+
+        .anime-avatar-small {
+            width: 50px; height: 50px;
+            border-radius: 50%;
+            /* Link gambar baru juga dipasang di sini agar sama */
+            background-image: url('https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcR4fyp11Su_vOQ9S-e-DZWxLw9Gqwz0J5QzM9dUvZ14tg&s=10');
+            background-size: cover;
+            background-position: center top;
+            border: 2px solid white;
+            animation: rgbGlow 3s infinite linear;
+        }
+
+        @keyframes rgbGlow {
+            0% { box-shadow: 0 0 15px rgba(255, 0, 0, 0.8); border-color: #ff0000; }
+            33% { box-shadow: 0 0 15px rgba(0, 255, 0, 0.8); border-color: #00ff00; }
+            66% { box-shadow: 0 0 15px rgba(0, 0, 255, 0.8); border-color: #0000ff; }
+            100% { box-shadow: 0 0 15px rgba(255, 0, 0, 0.8); border-color: #ff0000; }
+        }
+
+        /* --- UI COMPONENTS --- */
+        .glass-card {
+            background: var(--glass); backdrop-filter: blur(12px);
+            border: 1px solid var(--border); border-radius: 20px; padding: 20px;
+            margin-bottom: 15px;
+        }
+
+        /* Splash Screen */
+        #splash {
+            position: fixed; inset: 0; background: var(--bg-dark); z-index: 9999;
+            display: flex; flex-direction: column; justify-content: center; align-items: center;
+            transition: opacity 0.5s;
+        }
+        
+        .login-box {
+            display: none; width: 80%; max-width: 300px; text-align: center;
+            animation: slideUp 0.5s forwards;
+        }
+        @keyframes slideUp { from{transform:translateY(20px);opacity:0} to{transform:translateY(0);opacity:1}}
+
+        .form-dark {
+            background: rgba(0,0,0,0.3); border: 1px solid var(--border);
+            color: white; border-radius: 10px; text-align: center;
+        }
+        
+        /* Bottom Nav */
+        .bottom-nav {
+            position: fixed; bottom: 0; left: 0; width: 100%;
+            background: rgba(15, 23, 42, 0.95); border-top: 1px solid var(--border);
+            display: flex; justify-content: space-around; padding: 15px;
+            z-index: 100;
+        }
+        .nav-item { font-size: 0.8rem; color: #64748b; text-align: center; transition: 0.3s; }
+        .nav-item.active { color: #6366f1; transform: translateY(-5px); font-weight: bold; }
+        .nav-item i { font-size: 1.5rem; display: block; margin-bottom: 2px; }
+
+        .tab-content { display: none; animation: fadeIn 0.3s; padding-bottom: 80px; }
+        .tab-content.active { display: block; }
+        @keyframes fadeIn { from{opacity:0} to{opacity:1}}
+
+    </style>
+</head>
+<body>
+
+    <div id="splash">
+        <div class="anime-avatar mb-4" id="splashAvatar"></div>
+        <h2 class="fw-bold mb-0">Wowo.ID</h2>
+        <small class="text-white opacity-50 mb-4">Selamat Menabung </small>
+
+        <div id="loginForm" class="login-box">
+            <p class="small">Masukkan Nama Kamu:</p>
+            <input type="text" id="username" class="form-control form-dark mb-3" placeholder="Contoh: Aldi">
+            <button class="btn btn-primary w-100 rounded-pill" onclick="login()">Masuk</button>
+        </div>
+        
+        <div id="loader" class="spinner-border text-primary" role="status"></div>
+    </div>
+
+    <div id="app" style="display:none;" class="container pt-4">
+        
+        <div class="d-flex justify-content-between align-items-center mb-4">
+            <div>
+                <small class="text-white opacity-75">Halo, Selamat Datang</small>
+                <h4 class="fw-bold" id="userDisplay">User</h4>
+            </div>
+            <div class="anime-avatar-small"></div>
+        </div>
+
+        <div id="tab-home" class="tab-content active">
+            <div class="glass-card text-center py-4 position-relative overflow-hidden">
+                <div class="position-absolute top-0 start-0 w-100 h-100 bg-primary opacity-25" style="filter:blur(50px)"></div>
+                <div class="position-relative">
+                    <small class="text-uppercase fw-bold opacity-75">Saldo Wowo.ID</small>
+                    <h1 class="fw-bold my-2" id="saldo">Rp 0</h1>
+                    <div class="row g-2 mt-3">
+                        <div class="col-6"><button class="btn btn-success w-100 rounded-pill" onclick="modal('in')">Masuk</button></div>
+                        <div class="col-6"><button class="btn btn-danger w-100 rounded-pill" onclick="modal('out')">Keluar</button></div>
+                    </div>
+                </div>
+            </div>
+            <h6 class="fw-bold opacity-75 ps-2 mb-3">Riwayat Transaksi</h6>
+            <div id="historyList"></div>
+        </div>
+
+        <div id="tab-task" class="tab-content">
+            <div class="glass-card">
+                <h5 class="fw-bold mb-3">Misi Hari Ini</h5>
+                <div class="input-group mb-3">
+                    <input type="text" id="taskInput" class="form-control form-dark" placeholder="Tugas baru...">
+                    <button class="btn btn-primary" onclick="addTask()">+</button>
+                </div>
+                <div id="taskList"></div>
+            </div>
+        </div>
+
+        <div id="tab-tools" class="tab-content">
+            <div class="row g-3">
+                <div class="col-6">
+                    <div class="glass-card text-center h-100">
+                        <i class="bi bi-stopwatch fs-1 text-warning"></i>
+                        <h4 class="mt-2 font-monospace" id="timer">00:00</h4>
+                        <button class="btn btn-sm btn-outline-light rounded-pill px-3 mt-2" onclick="toggleTimer()">Start/Stop</button>
+                    </div>
+                </div>
+                <div class="col-6">
+                    <div class="glass-card text-center h-100">
+                        <i class="bi bi-shield-lock fs-1 text-info"></i>
+                        <h5 class="mt-2 text-truncate" id="passResult">******</h5>
+                        <button class="btn btn-sm btn-outline-light rounded-pill px-3 mt-2" onclick="genPass()">Generate</button>
+                    </div>
+                </div>
+                <div class="col-12">
+                     <div class="glass-card text-center" onclick="logout()">
+                         <i class="bi bi-box-arrow-left text-danger fs-3"></i>
+                         <p class="mb-0 mt-2 text-danger fw-bold">Logout / Ganti Akun</p>
+                     </div>
+                </div>
+            </div>
+        </div>
+
+    </div>
+
+    <nav class="bottom-nav" id="btmNav" style="display:none;">
+        <div class="nav-item active" onclick="switchTab('home', this)"><i class="bi bi-wallet2"></i>Dompet</div>
+        <div class="nav-item" onclick="switchTab('task', this)"><i class="bi bi-list-check"></i>Tugas</div>
+        <div class="nav-item" onclick="switchTab('tools', this)"><i class="bi bi-grid-fill"></i>Alat</div>
+    </nav>
+
+    <script>
+        // Init
+        window.onload = () => {
+            const user = localStorage.getItem('wowo_user');
+            setTimeout(() => {
+                document.getElementById('loader').style.display = 'none';
+                if(user) openApp(user);
+                else document.getElementById('loginForm').style.display = 'block';
+            }, 1500);
+            loadData();
+        };
+
+        function login() {
+            const u = document.getElementById('username').value;
+            if(!u) return;
+            localStorage.setItem('wowo_user', u);
+            openApp(u);
+        }
+
+        function openApp(u) {
+            document.getElementById('userDisplay').innerText = u;
+            document.getElementById('splash').style.opacity = 0;
+            setTimeout(() => {
+                document.getElementById('splash').style.display = 'none';
+                document.getElementById('app').style.display = 'block';
+                document.getElementById('btmNav').style.display = 'flex';
+            }, 500);
+        }
+
+        function logout() {
+            if(confirm("Keluar akun?")) { localStorage.removeItem('wowo_user'); location.reload(); }
+        }
+
+        // Tabs
+        function switchTab(id, el) {
+            document.querySelectorAll('.tab-content').forEach(d => d.classList.remove('active'));
+            document.getElementById('tab-'+id).classList.add('active');
+            document.querySelectorAll('.nav-item').forEach(n => n.classList.remove('active'));
+            el.classList.add('active');
+        }
+
+        // Finance
+        let trxs = [];
+        function loadData() {
+            trxs = JSON.parse(localStorage.getItem('wowo_trx') || '[]');
+            renderTrx();
+            document.getElementById('taskList').innerHTML = localStorage.getItem('wowo_task') || '';
+        }
+        function modal(type) {
+            const val = prompt(type==='in' ? "Masukan Jumlah Uang Masuk:" : "Masukan Jumlah Pengeluaran:");
+            const desc = prompt("Keterangan (Buat apa?):");
+            if(val && desc) {
+                trxs.unshift({d:desc, v:parseInt(val), t:type});
+                localStorage.setItem('wowo_trx', JSON.stringify(trxs));
+                renderTrx();
+            }
+        }
+        function renderTrx() {
+            let tot = 0;
+            const el = document.getElementById('historyList'); el.innerHTML = '';
+            trxs.forEach(x => {
+                if(x.t==='in') tot+=x.v; else tot-=x.v;
+                el.innerHTML += `
+                <div class="glass-card p-3 mb-2 d-flex justify-content-between align-items-center">
+                    <span class="fw-bold">${x.d}</span>
+                    <span class="${x.t==='in'?'text-success':'text-danger'} fw-bold">${x.t==='in'?'+':'-'} ${x.v.toLocaleString()}</span>
+                </div>`;
+            });
+            document.getElementById('saldo').innerText = `Rp ${tot.toLocaleString()}`;
+        }
+
+        // Task
+        function addTask() {
+            const v = document.getElementById('taskInput').value;
+            if(!v) return;
+            const h = `<div class="glass-card p-3 mb-2 d-flex justify-content-between"><span onclick="this.classList.toggle('text-decoration-line-through')">${v}</span><span class="text-danger" onclick="this.parentElement.remove();saveTask()">x</span></div>`;
+            document.getElementById('taskList').insertAdjacentHTML('afterbegin', h);
+            document.getElementById('taskInput').value=''; saveTask();
+        }
+        function saveTask() { localStorage.setItem('wowo_task', document.getElementById('taskList').innerHTML); }
+
+        // Tools
+        let ti=null, s=0;
+        function toggleTimer() {
+            if(ti) { clearInterval(ti); ti=null; }
+            else { ti=setInterval(()=>{ s++; 
+                document.getElementById('timer').innerText = new Date(s * 1000).toISOString().substr(14, 5);
+            }, 1000); }
+        }
+        function genPass() {
+            document.getElementById('passResult').innerText = Math.random().toString(36).slice(-8);
+        }
+    </script>
+</body>
+</html>
